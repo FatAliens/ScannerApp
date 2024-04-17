@@ -9,5 +9,5 @@ import androidx.room.PrimaryKey
 data class CatalogItem(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "qr_code") val qrCode : String,
-    val title: String
+    val title: String,
 )

@@ -12,28 +12,27 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.fatalien.scannerapp.helpers.AtolPreview
-import com.fatalien.scannerapp.navigation.CatalogInfoTopAppBar
 import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 
 @Composable
 fun AppScaffold(
     navHostController: NavHostController,
     topAppBar: @Composable () -> Unit,
-    slot: @Composable ColumnScope.() -> Unit
+    fab: @Composable () -> Unit,
+    slot: @Composable ColumnScope.() -> Unit,
 ) {
-    ScannerAppTheme {
-        Scaffold(
-            bottomBar = { AppBottomNavBar(navHostController) },
-            topBar = topAppBar
-        ) { paddings ->
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddings)
-                    .padding(10.dp)
-            ) {
-                slot()
-            }
+    Scaffold(
+        bottomBar = { AppBottomNavBar(navHostController) },
+        topBar = topAppBar,
+        floatingActionButton = fab
+    ) { paddings ->
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(paddings)
+                .padding(10.dp)
+        ) {
+            slot()
         }
     }
 }
@@ -41,7 +40,13 @@ fun AppScaffold(
 @AtolPreview
 @Composable
 fun AppScaffoldPreview() {
-    AppScaffold(navHostController = rememberNavController(), { CatalogInfoTopAppBar(74) {} }) {
-        Text("Content")
+    ScannerAppTheme {
+        AppScaffold(
+            navHostController = rememberNavController(),
+            { CatalogInfoTopAppBar(74) {} }
+            ,{ SaveProductsFAB(true) {} }
+        ) {
+            Text("Content")
+        }
     }
 }

@@ -1,7 +1,7 @@
-package com.fatalien.scannerapp.data.db
+package com.fatalien.scannerapp.data.repository
 
+import com.fatalien.scannerapp.data.dao.ProductDao
 import com.fatalien.scannerapp.data.entity.Product
-import com.fatalien.scannerapp.data.entity.ProductWithCatalog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -13,7 +13,7 @@ class ProductRepository @Inject constructor(private val productDao: ProductDao) 
         }
     }
 
-    suspend fun getAll() : List<ProductWithCatalog> {
+    suspend fun getAll() : List<Product> {
         return withContext(Dispatchers.IO){
             return@withContext productDao.getAll()
         }
@@ -22,6 +22,18 @@ class ProductRepository @Inject constructor(private val productDao: ProductDao) 
     suspend fun clear(){
         withContext(Dispatchers.IO){
             productDao.clear()
+        }
+    }
+
+    suspend fun delete(id: Int){
+        withContext(Dispatchers.IO){
+            productDao.delete(id)
+        }
+    }
+
+    suspend fun increment(qr: String){
+        withContext(Dispatchers.IO){
+            productDao.increment(qr)
         }
     }
 }

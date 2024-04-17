@@ -1,24 +1,25 @@
 package com.fatalien.scannerapp.ui.components
 
-import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 
 @Composable
-fun FilePicker(onPickFile: (String) -> Unit) {
-    var showFilePicker by remember { mutableStateOf(false) }
+fun FilePickerButton(onPickFile: (filePath: String) -> Unit, text: String = "Загрузить из файла...", modifier: Modifier = Modifier) {
+    var showPicker by remember { mutableStateOf(false) }
 
-    Button(onClick = { showFilePicker = true }) {
-        Text(text = "Загрузить из файла...")
+    OutlinedButton(onClick = { showPicker = true }, modifier) {
+        Text(text)
     }
 
-    FilePicker(show = showFilePicker, fileExtensions = listOf("csv")) { file ->
-        showFilePicker = false;
+    FilePicker(show = showPicker, fileExtensions = listOf("csv")) { file ->
+        showPicker = false;
         if (file != null) {
             onPickFile(file.path)
         } else {

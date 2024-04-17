@@ -1,4 +1,4 @@
-package com.fatalien.scannerapp.data.services
+package com.fatalien.scannerapp.services
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -9,13 +9,13 @@ import javax.inject.Inject
 
 class ClipboardService @Inject constructor(@ApplicationContext _context: Context) {
     private val _clipboardManager : ClipboardManager = _context.getSystemService(ClipboardManager::class.java)
-    fun onClipboardCopy(emit: (String) -> Unit) {
+    fun setOnCopy(onCopy: (qr: String) -> Unit) {
         _clipboardManager.addPrimaryClipChangedListener {
             val clipboardAsText = _clipboardManager.primaryClip?.getItemAt(0)?.text
             if (clipboardAsText != null) {
                 val result = clipboardAsText.toString().trim().uppercase()
                 Log.d("CLIPBOARD", result)
-                emit(result)
+                onCopy(result)
             }
         }
     }

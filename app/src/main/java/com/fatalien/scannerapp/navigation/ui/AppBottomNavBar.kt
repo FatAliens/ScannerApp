@@ -11,7 +11,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.fatalien.scannerapp.R
+import com.fatalien.scannerapp.helpers.AtolPreview
 import com.fatalien.scannerapp.navigation.DestinationSettings
+import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 
 @Composable
 fun AppBottomNavBar(
@@ -33,9 +36,35 @@ fun AppBottomNavBar(
                         restoreState = true
                     }
                 },
-                icon = { Icon(ImageVector.vectorResource(id = destination.iconRes), contentDescription = destination.description) },
+                icon = {
+                    Icon(
+                        ImageVector.vectorResource(id = destination.iconRes),
+                        contentDescription = destination.description
+                    )
+                },
                 label = { Text(destination.title) },
             )
+        }
+    }
+}
+
+@AtolPreview
+@Composable
+private fun BottomNavBarPreview() {
+    ScannerAppTheme {
+        NavigationBar {
+            NavigationBarItem(selected = false,
+                onClick = {},
+                icon = { Icon(ImageVector.vectorResource(R.drawable.preview), "chips") },
+                label = { Text("One") })
+            NavigationBarItem(selected = true,
+                onClick = {},
+                icon = { Icon(ImageVector.vectorResource(R.drawable.preview), "chips") },
+                label = { Text("Two") })
+            NavigationBarItem(selected = false,
+                onClick = {},
+                icon = { Icon(ImageVector.vectorResource(R.drawable.preview), "chips") },
+                label = { Text("Extra large text") })
         }
     }
 }

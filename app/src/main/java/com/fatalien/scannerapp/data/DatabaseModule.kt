@@ -1,7 +1,13 @@
-package com.fatalien.scannerapp.data.db
+package com.fatalien.scannerapp.data
 
 import android.content.Context
 import androidx.room.Room
+import com.fatalien.scannerapp.data.dao.CatalogDao
+import com.fatalien.scannerapp.data.dao.OrderDao
+import com.fatalien.scannerapp.data.dao.ProductDao
+import com.fatalien.scannerapp.data.repository.CatalogRepository
+import com.fatalien.scannerapp.data.repository.OrderRepository
+import com.fatalien.scannerapp.data.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +26,7 @@ class DatabaseModule {
             appContext,
             AppDatabase::class.java,
             "ScannerApp"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Singleton
@@ -37,6 +43,12 @@ class DatabaseModule {
 
     @Singleton
     @Provides
+    fun provideOrderDao(appDatabase: AppDatabase): OrderDao {
+        return appDatabase.getOrderDao()
+    }
+
+    @Singleton
+    @Provides
     fun provideCatalogRepo(catalogDao: CatalogDao) : CatalogRepository {
         return CatalogRepository(catalogDao)
     }
@@ -45,5 +57,11 @@ class DatabaseModule {
     @Provides
     fun provideProductRepo(productDao: ProductDao) : ProductRepository {
         return ProductRepository(productDao)
+    }
+
+    @Singleton
+    @Provides
+    fun provideOrderRepo(orderDao: OrderDao) : OrderRepository {
+        return OrderRepository(orderDao)
     }
 }

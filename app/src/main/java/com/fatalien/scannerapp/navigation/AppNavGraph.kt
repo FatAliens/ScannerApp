@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fatalien.scannerapp.navigation.data.NavDestination
 import com.fatalien.scannerapp.screens.order.OrderScreen
+import com.fatalien.scannerapp.screens.order.OrderScreenVM
 import com.fatalien.scannerapp.screens.product.ProductsScreen
 import com.fatalien.scannerapp.screens.product.ProductsScreenVM
 
@@ -25,7 +26,8 @@ fun AppNavGraph(navHostController: NavHostController = rememberNavController()) 
 
                 NavDestination.OrderScreen -> {
                     composable(NavDestination.OrderScreen.route) {
-                        OrderScreen(navHostController)
+                        val vm = hiltViewModel<OrderScreenVM>()
+                        OrderScreen(vm, navHostController)
                     }
                 }
             }

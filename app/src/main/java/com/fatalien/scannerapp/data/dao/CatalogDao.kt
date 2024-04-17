@@ -1,4 +1,4 @@
-package com.fatalien.scannerapp.data.db
+package com.fatalien.scannerapp.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

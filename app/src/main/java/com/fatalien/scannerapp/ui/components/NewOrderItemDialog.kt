@@ -41,23 +41,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.fatalien.scannerapp.R
-import com.fatalien.scannerapp.data.entity.Product
+import com.fatalien.scannerapp.data.entity.OrderItem
 import com.fatalien.scannerapp.helpers.AtolPreview
 import com.fatalien.scannerapp.helpers.toDateString
 import com.fatalien.scannerapp.helpers.toEpochMilli
-import com.fatalien.scannerapp.screens.product.ProductsScreenVM
+import com.fatalien.scannerapp.helpers.toLocalDate
+import com.fatalien.scannerapp.screens.order.OrderScreenVM
 import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @Composable
-fun NewProductBottomSheet(
-    productInitData: ProductsScreenVM.NewProductState,
+fun NewOrderItemBottomSheet(
+    orderItemInitData: OrderScreenVM.NewOrderItem,
     onDismiss: () -> Unit,
-    onSaveProduct: (Product) -> Unit,
+    onSave: (OrderItem) -> Unit,
 ) {
 
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -65,11 +68,11 @@ fun NewProductBottomSheet(
 
 
     ModalBottomSheet(onDismissRequest = { onDismiss() }, sheetState = bottomSheetState) {
-        NewProductForm(productInitData)
-        { newProduct ->
+        NewOrderItemForm(orderItemInitData)
+        { newOrderItem ->
             scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
                 if (!bottomSheetState.isVisible) {
-                    onSaveProduct(newProduct)
+                    onSave(newOrderItem)
                 }
             }
         }
@@ -78,17 +81,20 @@ fun NewProductBottomSheet(
 }
 
 @Composable
-private fun NewProductForm(
-    productInitData: ProductsScreenVM.NewProductState,
-    onProductSubmit: (Product) -> Unit
+private fun NewOrderItemForm(
+    orderItemInitData: OrderScreenVM.NewOrderItem,
+    onProductSubmit: (OrderItem) -> Unit
 ) {
-    var productState by remember {
+    var orderItemState by remember {
         mutableStateOf(
-            Product(
-                productInitData.qrCore,
-                productInitData.title,
+            OrderItem(
+                orderItemInitData.qrCore,
+                orderItemInitData.title,
                 1,
-                LocalDate.now().toEpochMilli()
+                orderItemInitData.requiredQuantity,
+                LocalDate.now().toEpochMilli(),
+                orderItemInitData.requiredBBD,
+                orderItemInitData.id,
             )
         )
     }
@@ -98,37 +104,40 @@ private fun NewProductForm(
 
     Column(Modifier.padding(20.dp)) {
         Text(
-            text = productState.title,
+            text = orderItemState.title,
             style = MaterialTheme.typography.headlineLarge
         )
         Text(
-            text = "Штрих-код: " + productState.qrCode,
+            text = "Штрих-код: " + orderItemState.qrCode,
             style = MaterialTheme.typography.labelLarge
         )
         Spacer(Modifier.height(10.dp))
         NumericUpDown(
-            value = productState.quantity,
-            range = 0..100
+            value = orderItemState.quantity,
+            range = 0..orderItemState.requiredQuantity
         ) {
-            productState = productState.copy(quantity = it)
+            orderItemState = orderItemState.copy(quantity = it)
         }
         Spacer(Modifier.height(10.dp))
-        DatePickerButton(productState.bestBeforeDate) { showDateDialog = true }
+        DatePickerButton(
+            orderItemState.bestBeforeDate,
+            orderItemState.requiredBestBeforeDate
+        ) { showDateDialog = true }
         if (showDateDialog) {
             AppDatePickerDialog(onDismiss = { showDateDialog = false }) {
                 showDateDialog = false
-                productState = productState.copy(bestBeforeDate = it)
+                orderItemState = orderItemState.copy(bestBeforeDate = it)
             }
         }
         Spacer(Modifier.height(10.dp))
 
 
         Button(
-            { onProductSubmit(productState) },
+            { onProductSubmit(orderItemState) },
             Modifier
                 .fillMaxWidth()
                 .padding(25.dp, 10.dp),
-            productState.quantity > 0
+            orderItemState.quantity > 0
         ) {
             Text("Добавить")
         }
@@ -138,16 +147,27 @@ private fun NewProductForm(
 @Composable
 private fun DatePickerButton(
     currentDate: Long,
+    requiredDate: Long,
     modifier: Modifier = Modifier,
     showDialog: () -> Unit
 ) {
+    val dateCompare = requiredDate.toLocalDate() == currentDate.toLocalDate()
+
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         Text("Годен до: ")
         OutlinedButton(
             onClick = showDialog,
             shape = MaterialTheme.shapes.small
         ) {
-            Text(currentDate.toDateString(), style = MaterialTheme.typography.titleMedium)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                if (!dateCompare)
+                    Text(
+                        requiredDate.toDateString(),
+                        color = MaterialTheme.colorScheme.error,
+                        style = TextStyle(textDecoration = TextDecoration.LineThrough)
+                    )
+                Text(currentDate.toDateString(), style = MaterialTheme.typography.titleMedium)
+            }
         }
         Icon(
             Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
@@ -241,9 +261,10 @@ private fun NumericUpDown(
             )
         }
         Slider(
-            value = value / 100f,
-            onValueChange = { onChange((it * 100).toInt()) },
-            steps = 19
+            value = value.toFloat(),
+            onValueChange = { onChange(it.toInt()) },
+            valueRange = range.first.toFloat()..range.last.toFloat(),
+            steps = range.last / 2
         )
     }
 }
@@ -253,13 +274,16 @@ private fun NumericUpDown(
 private fun NewProductFormPreview() {
     ScannerAppTheme {
         Surface(Modifier.fillMaxSize()) {
-            Column(verticalArrangement = Arrangement.Bottom){
-                NewProductForm(
-                    productInitData = ProductsScreenVM.NewProductState(
+            Column(verticalArrangement = Arrangement.Bottom) {
+                NewOrderItemForm(
+                    orderItemInitData = OrderScreenVM.NewOrderItem(
+                        0,
                         "234234243",
-                        title = "Macciato de Empresso en Ephiope"
+                        title = "Macciato de Empresso en Ephiope",
+                        "20.10.2003".toEpochMilli(),
+                        15,
                     )
-                ){}
+                ) {}
             }
 
         }
@@ -277,7 +301,7 @@ private fun NumericUpDownPreview() {
                     .wrapContentSize(),
                 value = 50,
                 onChange = {},
-                range = 0..100
+                range = 0..10
             )
         }
     }
@@ -288,7 +312,10 @@ private fun NumericUpDownPreview() {
 private fun DatePickerButtonPreview() {
     ScannerAppTheme {
         Surface(Modifier.fillMaxSize()) {
-            DatePickerButton(LocalDate.now().toEpochMilli()) {}
+            Column {
+                DatePickerButton(LocalDate.now().toEpochMilli(), "20.10.2003".toEpochMilli()) {}
+                DatePickerButton(LocalDate.now().toEpochMilli(), "17.04.2024".toEpochMilli()) {}
+            }
         }
     }
 }

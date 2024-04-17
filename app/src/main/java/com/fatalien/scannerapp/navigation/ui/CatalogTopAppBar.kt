@@ -1,7 +1,6 @@
-package com.fatalien.scannerapp.navigation
+package com.fatalien.scannerapp.navigation.ui
 
 import android.annotation.SuppressLint
-import androidx.compose.material3.CaretProperties
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,7 +47,7 @@ fun CatalogInfoTopAppBar(catalogSize: Int, onCatalogDialogOpen: () -> Unit) {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AtolPreview
 @Composable
-fun CatalogInfoTopAppBarPreview() {
+private fun CatalogInfoTopAppBarPreview() {
     ScannerAppTheme {
         Scaffold(topBar = { CatalogInfoTopAppBar(85) {} }) {}
     }
@@ -57,7 +56,7 @@ fun CatalogInfoTopAppBarPreview() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AtolPreview
 @Composable
-fun EmptyCatalogTopAppBarPreview() {
+private fun EmptyCatalogTopAppBarPreview() {
     ScannerAppTheme {
         Scaffold(topBar = { CatalogInfoTopAppBar(0) {} }) {}
     }
