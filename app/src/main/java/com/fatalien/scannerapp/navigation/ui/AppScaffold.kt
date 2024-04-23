@@ -44,7 +44,7 @@ fun AppScaffoldPreview() {
         AppScaffold(
             navHostController = rememberNavController(),
             { CatalogInfoTopAppBar(74) {} }
-            ,{ SaveProductsFAB(true) {} }
+            ,{ SaveProductsFAB {} }
         ) {
             Text("Content")
         }

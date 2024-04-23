@@ -1,5 +1,6 @@
 package com.fatalien.scannerapp.ui.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,12 +12,14 @@ import androidx.compose.ui.Modifier
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 
 @Composable
-fun FilePickerButton(onPickFile: (filePath: String) -> Unit, text: String = "Загрузить из файла...", modifier: Modifier = Modifier) {
+fun FilePickerButton(
+    onPickFile: (filePath: String) -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit = { Text("Загрузить из файла...") },
+) {
     var showPicker by remember { mutableStateOf(false) }
 
-    OutlinedButton(onClick = { showPicker = true }, modifier) {
-        Text(text)
-    }
+    OutlinedButton(onClick = { showPicker = true }, modifier, content = content)
 
     FilePicker(show = showPicker, fileExtensions = listOf("csv")) { file ->
         showPicker = false;

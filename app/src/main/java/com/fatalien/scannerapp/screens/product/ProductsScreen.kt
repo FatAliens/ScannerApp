@@ -42,7 +42,7 @@ fun ProductsScreen(viewModel: ProductsScreenVM, navHostController: NavHostContro
     AppScaffold(
         navHostController,
         { CatalogInfoTopAppBar(catalog.size) { showCatalogDialog = true } },
-        { SaveProductsFAB(products.isNotEmpty(), viewModel::saveProductsToFile) }
+        { if(products.isNotEmpty()) SaveProductsFAB(viewModel::saveProductsToFile) }
     ) {
         if (showCatalogDialog) CatalogDialog(catalog,
             { viewModel.loadCatalogFromFile(it) }) { showCatalogDialog = false }
@@ -55,11 +55,13 @@ fun ProductsScreen(viewModel: ProductsScreenVM, navHostController: NavHostContro
             }
         }
         if (products.isNotEmpty()) {
+            //TestFunctions(viewModel::emulateQrScan)
             ProductList(products, viewModel::deleteProductById)
         } else {
+            //TestFunctions(viewModel::emulateQrScan, Modifier.weight(1f))
             EmptyProductsTooltip()
         }
-        //TestFunctions { viewModel.emulateQrScan(it) }
+
     }
 }
 

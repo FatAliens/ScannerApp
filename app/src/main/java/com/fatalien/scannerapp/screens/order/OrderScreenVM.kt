@@ -37,7 +37,8 @@ class OrderScreenVM @Inject constructor(
                             NewOrderItem(sameQrProduct.id, qr, sameQrProduct.title, sameQrProduct.requiredBestBeforeDate, sameQrProduct.requiredQuantity)
                         )
                     }
-                }else{
+                }
+                else if(sameQrProduct.quantity < sameQrProduct.requiredQuantity){
                     viewModelScope.launch {
                         _orderRepo.increment(sameQrProduct.qrCode)
                         loadOrderFromDb()

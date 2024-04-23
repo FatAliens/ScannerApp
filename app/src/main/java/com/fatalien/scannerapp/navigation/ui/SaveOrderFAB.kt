@@ -20,7 +20,7 @@ import com.fatalien.scannerapp.ui.components.SaveFilePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SaveProductsFAB(onFileSave: (filePath: String) -> Unit) {
+fun SaveOrderFAB(onFileSave: (filePath: String) -> Unit) {
     var showPicker by rememberSaveable { mutableStateOf(false) }
 
     SaveFilePicker(
@@ -48,7 +48,7 @@ fun SaveProductsFAB(onFileSave: (filePath: String) -> Unit) {
         FloatingActionButton({ showPicker = true }) {
             Icon(
                 ImageVector.vectorResource(R.drawable.file_save),
-                "сохранить товары в файл"
+                "сохранить заказ в файл"
             )
         }
     }

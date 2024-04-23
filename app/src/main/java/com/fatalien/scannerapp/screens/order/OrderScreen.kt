@@ -11,19 +11,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -49,9 +43,10 @@ import com.fatalien.scannerapp.helpers.toDateString
 import com.fatalien.scannerapp.helpers.toEpochMilli
 import com.fatalien.scannerapp.helpers.toLocalDate
 import com.fatalien.scannerapp.navigation.ui.AppScaffold
+import com.fatalien.scannerapp.navigation.ui.OrderTopAppBar
+import com.fatalien.scannerapp.navigation.ui.SaveOrderFAB
 import com.fatalien.scannerapp.ui.components.FilePickerButton
 import com.fatalien.scannerapp.ui.components.NewOrderItemBottomSheet
-import com.fatalien.scannerapp.ui.components.SaveFileButton
 import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 import java.time.LocalDate
 
@@ -60,29 +55,13 @@ fun OrderScreen(viewModel: OrderScreenVM, navHostController: NavHostController) 
     val orderItems by viewModel.orderItems.collectAsState()
     val scannedItem by viewModel.scannedOrderItem.collectAsState()
 
-    AppScaffold(navHostController, {}, {}) {
+    val orderCompleted = orderItems.fold(true) { result, orderItem -> result && orderItem.quantity == orderItem.requiredQuantity }
 
+    AppScaffold(navHostController, { if(orderItems.size > 0) OrderTopAppBar(orderCompleted, viewModel::readOrderFromFile) }, { if(orderCompleted) SaveOrderFAB(viewModel::saveOrderToFile) }) {
         if (orderItems.size > 0) {
             LazyColumn(Modifier.weight(1f)) {
-                //item {
-                //    TestFunctions(viewModel::emulateQrScan, Modifier)
-                //}
                 items(orderItems, key = { t -> t.id }) { item ->
                     OrderListItem(item)
-                }
-            }
-            Spacer(Modifier.height(5.dp))
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                FilePickerButton(viewModel::readOrderFromFile, "Загрузить другой заказ..")
-            }
-            Row(Modifier.fillMaxWidth()) {
-                SaveFileButton(Modifier.weight(1f), viewModel::saveOrderToFile)
-                Spacer(Modifier.width(4.dp))
-                Button(
-                    onClick = viewModel::clearOrder,
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer)
-                ) {
-                    Text("Удалить заказ")
                 }
             }
         } else {
@@ -143,7 +122,6 @@ private fun OrderListItem(item: OrderItem) {
     val bestBeforeDateCompare =
         item.bestBeforeDate.toLocalDate() == item.requiredBestBeforeDate.toLocalDate()
     val quantityCompare = item.quantity == item.requiredQuantity
-    val orderItemCompare = bestBeforeDateCompare && quantityCompare
 
     ListItem(
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceDim),
@@ -211,22 +189,23 @@ private fun OrderListItem(item: OrderItem) {
             }
         },
         trailingContent = {
-            if (orderItemCompare) {
-                Icon(
-                    ImageVector.vectorResource(R.drawable.chech),
-                    "",
-                    Modifier.size(50.dp),
-                    MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
-                )
-            } else {
-                Icon(
-                    ImageVector.vectorResource(R.drawable.warning),
-                    "",
-                    Modifier.size(50.dp),
-                    MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.70f),
-                )
+            Box(Modifier.padding(top = 15.dp)) {
+                if (quantityCompare) {
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.chech),
+                        "",
+                        Modifier.size(30.dp),
+                        MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
+                    )
+                } else {
+                    Icon(
+                        ImageVector.vectorResource(R.drawable.warning),
+                        "",
+                        Modifier.size(30.dp),
+                        MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.70f),
+                    )
+                }
             }
-
         }
     )
 }
