@@ -3,13 +3,14 @@ package com.fatalien.scannerapp.navigation.ui
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.Icon
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import com.fatalien.scannerapp.R
@@ -30,7 +31,7 @@ fun OrderTopAppBar(orderCompleted: Boolean, onPickFile: (String) -> Unit){
         actions = {
             FilePickerButton(onPickFile)
             {
-                Row(horizontalArrangement = Arrangement.Center) {
+                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
                     Icon(ImageVector.vectorResource(R.drawable.file_open), "", tint = MaterialTheme.colorScheme.primary)
                     Text("Открыть заказ")
                 }

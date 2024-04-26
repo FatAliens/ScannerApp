@@ -51,14 +51,13 @@ import com.fatalien.scannerapp.helpers.AtolPreview
 import com.fatalien.scannerapp.helpers.toDateString
 import com.fatalien.scannerapp.helpers.toEpochMilli
 import com.fatalien.scannerapp.helpers.toLocalDate
-import com.fatalien.scannerapp.screens.order.OrderScreenVM
 import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @Composable
-fun NewOrderItemBottomSheet(
-    orderItemInitData: OrderScreenVM.NewOrderItem,
+fun UpdateOrderItemBottomSheet(
+    orderItemInitData: OrderItem,
     onDismiss: () -> Unit,
     onSave: (OrderItem) -> Unit,
 ) {
@@ -68,7 +67,7 @@ fun NewOrderItemBottomSheet(
 
 
     ModalBottomSheet(onDismissRequest = { onDismiss() }, sheetState = bottomSheetState) {
-        NewOrderItemForm(orderItemInitData)
+        UpdateOrderItemForm(orderItemInitData)
         { newOrderItem ->
             scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
                 if (!bottomSheetState.isVisible) {
@@ -81,22 +80,12 @@ fun NewOrderItemBottomSheet(
 }
 
 @Composable
-private fun NewOrderItemForm(
-    orderItemInitData: OrderScreenVM.NewOrderItem,
+private fun UpdateOrderItemForm(
+    orderItemInitData: OrderItem,
     onProductSubmit: (OrderItem) -> Unit
 ) {
     var orderItemState by remember {
-        mutableStateOf(
-            OrderItem(
-                orderItemInitData.qrCore,
-                orderItemInitData.title,
-                1,
-                orderItemInitData.requiredQuantity,
-                LocalDate.now().toEpochMilli(),
-                orderItemInitData.requiredBBD,
-                orderItemInitData.id,
-            )
-        )
+        mutableStateOf(orderItemInitData)
     }
     var showDateDialog by remember {
         mutableStateOf(false)
@@ -275,13 +264,15 @@ private fun NewProductFormPreview() {
     ScannerAppTheme {
         Surface(Modifier.fillMaxSize()) {
             Column(verticalArrangement = Arrangement.Bottom) {
-                NewOrderItemForm(
-                    orderItemInitData = OrderScreenVM.NewOrderItem(
-                        0,
+                UpdateOrderItemForm(
+                    orderItemInitData = OrderItem(
                         "234234243",
-                        title = "Macciato de Empresso en Ephiope",
+                        "Macciato de Empresso en Ephiope",
+                        20,
+                        100,
                         "20.10.2003".toEpochMilli(),
-                        15,
+                        "20.10.2023".toEpochMilli(),
+                        0
                     )
                 ) {}
             }

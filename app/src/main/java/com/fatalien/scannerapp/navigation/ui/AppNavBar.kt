@@ -1,5 +1,6 @@
 package com.fatalien.scannerapp.navigation.ui
 
+import android.util.Log
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,7 +18,7 @@ import com.fatalien.scannerapp.navigation.DestinationSettings
 import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 
 @Composable
-fun AppBottomNavBar(
+fun AppNavBar(
     navController: NavHostController
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -28,6 +29,7 @@ fun AppBottomNavBar(
                 selected = (backStackEntry?.destination?.route
                     ?: DestinationSettings.StartDestination.route) == destination.route,
                 onClick = {
+                    Log.d("AppNavBar", "navitage to '${destination.route}'")
                     navController.navigate(destination.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -36,17 +37,18 @@ import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 import java.time.LocalDate
 
 @Composable
-fun ProductList(products: List<Product>, onDeleteItem: (id: Int) -> Unit) {
+fun ProductList(products: List<Product>, onSelectItem: (id: Product) -> Unit, onDeleteItem: (id: Int) -> Unit) {
     LazyColumn(Modifier.padding(5.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        items(products, key = {t->t.id}){ product ->
-            ProductItem(product){onDeleteItem(product.id)}
+        items(products, key = { t -> t.id }) { product ->
+            ProductItem(product, {onSelectItem(product)}) { onDeleteItem(product.id) }
         }
     }
 }
 
 @Composable
-private fun ProductItem(product: Product, onDeleteItem: ()->Unit) {
+private fun ProductItem(product: Product, onSelect: () -> Unit,onDeleteItem: () -> Unit,) {
     ListItem(
+        modifier = Modifier.clickable(onClick = onSelect),
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceDim),
         headlineContent = {
             Text(product.title)
@@ -58,11 +60,20 @@ private fun ProductItem(product: Product, onDeleteItem: ()->Unit) {
             Text("до " + product.bestBeforeDate.toDateString())
         },
         leadingContent = {
-            Surface(Modifier.sizeIn(50.dp, 50.dp, 70.dp, 70.dp),color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape) {
-                Box(contentAlignment = Alignment.Center){
-                    AnimatedContent(product.quantity, transitionSpec =  {
+            Surface(
+                Modifier.sizeIn(50.dp, 50.dp, 70.dp, 70.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = CircleShape
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    AnimatedContent(product.quantity, transitionSpec = {
                         scaleIn(animationSpec = tween(durationMillis = 150)) togetherWith
-                                scaleOut(animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessHigh))
+                                scaleOut(
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioHighBouncy,
+                                        stiffness = Spring.StiffnessHigh
+                                    )
+                                )
                     }, label = "Animate Product Count") {
                         Text(it.toString())
                     }
@@ -71,7 +82,11 @@ private fun ProductItem(product: Product, onDeleteItem: ()->Unit) {
         },
         trailingContent = {
             IconButton(onDeleteItem) {
-                Icon(ImageVector.vectorResource(R.drawable.delete),"", tint = MaterialTheme.colorScheme.error)
+                Icon(
+                    ImageVector.vectorResource(R.drawable.delete),
+                    "",
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     )
@@ -83,19 +98,28 @@ private fun ProductListPreview() {
     ScannerAppTheme {
         val products = listOf(
             Product(
-                title = "Lavazza Espresso 250GR Tin włoska", qrCode = "8000070112872", quantity = 10, id = 0,
+                title = "Lavazza Espresso 250GR Tin włoska",
+                qrCode = "8000070112872",
+                quantity = 10,
+                id = 0,
                 bestBeforeDate = LocalDate.now().plusDays(22).toEpochMilli()
             ),
             Product(
-                title = "Lavazza NCC Coffee caps Espresso Decaffeinato 58gr", qrCode = "8000070053595", quantity = 1, id = 1,
+                title = "Lavazza NCC Coffee caps Espresso Decaffeinato 58gr",
+                qrCode = "8000070053595",
+                quantity = 1,
+                id = 1,
                 bestBeforeDate = LocalDate.now().plusMonths(11).toEpochMilli()
             ),
             Product(
-                title = "Café Intención ecológico Cafe Crema 100% arabica", qrCode = "4006581801032", quantity = 200, id = 2,
+                title = "Café Intención ecológico Cafe Crema 100% arabica",
+                qrCode = "4006581801032",
+                quantity = 200,
+                id = 2,
                 bestBeforeDate = LocalDate.now().plusYears(5).toEpochMilli()
             )
         )
-        ProductList(products){}
+        ProductList(products, {}) {}
     }
 }
 
@@ -110,6 +134,6 @@ private fun ProductPreview() {
                 20,
                 LocalDate.now().plusDays(950).toEpochMilli()
             )
-        ){}
+        , {}) {}
     }
 }

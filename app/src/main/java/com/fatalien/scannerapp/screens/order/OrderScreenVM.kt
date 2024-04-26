@@ -22,21 +22,15 @@ class OrderScreenVM @Inject constructor(
 ) : ViewModel() {
     private val _orderItems = MutableStateFlow<List<OrderItem>>(emptyList())
     val orderItems = _orderItems.asStateFlow()
-    private val _scannedOrderItem = MutableStateFlow<NewOrderItem?>(null)
+    private val _scannedOrderItem = MutableStateFlow<OrderItem?>(null)
     val scannedOrderItem = _scannedOrderItem.asStateFlow()
-
-    data class NewOrderItem(val id: Int, val qrCore: String, val title: String, val requiredBBD: Long, val requiredQuantity: Int)
 
     init {
         _clipboard.setOnCopy { qr ->
             val sameQrProduct = _orderItems.value.firstOrNull { item -> item.qrCode == qr }
             if (sameQrProduct != null) {
                 if(sameQrProduct.quantity==0){
-                    viewModelScope.launch {
-                        _scannedOrderItem.emit(
-                            NewOrderItem(sameQrProduct.id, qr, sameQrProduct.title, sameQrProduct.requiredBestBeforeDate, sameQrProduct.requiredQuantity)
-                        )
-                    }
+                    selectItem(sameQrProduct)
                 }
                 else if(sameQrProduct.quantity < sameQrProduct.requiredQuantity){
                     viewModelScope.launch {
@@ -94,5 +88,11 @@ class OrderScreenVM @Inject constructor(
 
     fun saveOrderToFile(path: String) {
         _orderFileWriter.write(path, _orderItems.value)
+    }
+
+    fun selectItem(item: OrderItem) {
+        viewModelScope.launch {
+            _scannedOrderItem.emit(item)
+        }
     }
 }

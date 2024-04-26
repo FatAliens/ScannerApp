@@ -22,7 +22,7 @@ fun AppScaffold(
     slot: @Composable ColumnScope.() -> Unit,
 ) {
     Scaffold(
-        bottomBar = { AppBottomNavBar(navHostController) },
+        bottomBar = { AppNavBar(navHostController) },
         topBar = topAppBar,
         floatingActionButton = fab
     ) { paddings ->

@@ -48,14 +48,13 @@ import com.fatalien.scannerapp.data.entity.Product
 import com.fatalien.scannerapp.helpers.AtolPreview
 import com.fatalien.scannerapp.helpers.toDateString
 import com.fatalien.scannerapp.helpers.toEpochMilli
-import com.fatalien.scannerapp.screens.product.ProductsScreenVM
 import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @Composable
 fun NewProductBottomSheet(
-    productInitData: ProductsScreenVM.NewProductState,
+    productInitData: Product,
     onDismiss: () -> Unit,
     onSaveProduct: (Product) -> Unit,
 ) {
@@ -79,18 +78,11 @@ fun NewProductBottomSheet(
 
 @Composable
 private fun NewProductForm(
-    productInitData: ProductsScreenVM.NewProductState,
+    productInitData: Product,
     onProductSubmit: (Product) -> Unit
 ) {
     var productState by remember {
-        mutableStateOf(
-            Product(
-                productInitData.qrCore,
-                productInitData.title,
-                1,
-                LocalDate.now().toEpochMilli()
-            )
-        )
+        mutableStateOf(productInitData)
     }
     var showDateDialog by remember {
         mutableStateOf(false)
@@ -255,9 +247,12 @@ private fun NewProductFormPreview() {
         Surface(Modifier.fillMaxSize()) {
             Column(verticalArrangement = Arrangement.Bottom){
                 NewProductForm(
-                    productInitData = ProductsScreenVM.NewProductState(
+                    productInitData = Product(
                         "234234243",
-                        title = "Macciato de Empresso en Ephiope"
+                        title = "Macciato de Empresso en Ephiope",
+                        10,
+                        LocalDate.now().toEpochMilli(),
+                        -1
                     )
                 ){}
             }

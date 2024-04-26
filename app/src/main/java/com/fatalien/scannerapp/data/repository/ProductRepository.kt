@@ -12,6 +12,11 @@ class ProductRepository @Inject constructor(private val productDao: ProductDao) 
             productDao.insert(product)
         }
     }
+    suspend fun update(product: Product) {
+        withContext(Dispatchers.IO){
+            productDao.update(product)
+        }
+    }
 
     suspend fun getAll() : List<Product> {
         return withContext(Dispatchers.IO){

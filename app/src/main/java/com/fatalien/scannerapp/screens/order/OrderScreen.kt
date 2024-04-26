@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +47,7 @@ import com.fatalien.scannerapp.navigation.ui.AppScaffold
 import com.fatalien.scannerapp.navigation.ui.OrderTopAppBar
 import com.fatalien.scannerapp.navigation.ui.SaveOrderFAB
 import com.fatalien.scannerapp.ui.components.FilePickerButton
-import com.fatalien.scannerapp.ui.components.NewOrderItemBottomSheet
+import com.fatalien.scannerapp.ui.components.UpdateOrderItemBottomSheet
 import com.fatalien.scannerapp.ui.theme.ScannerAppTheme
 import java.time.LocalDate
 
@@ -55,20 +56,20 @@ fun OrderScreen(viewModel: OrderScreenVM, navHostController: NavHostController) 
     val orderItems by viewModel.orderItems.collectAsState()
     val scannedItem by viewModel.scannedOrderItem.collectAsState()
 
-    val orderCompleted = orderItems.fold(true) { result, orderItem -> result && orderItem.quantity == orderItem.requiredQuantity }
+    val orderCompleted = orderItems.fold(true) { result, orderItem -> result && orderItem.quantity == orderItem.requiredQuantity } && orderItems.isNotEmpty()
 
-    AppScaffold(navHostController, { if(orderItems.size > 0) OrderTopAppBar(orderCompleted, viewModel::readOrderFromFile) }, { if(orderCompleted) SaveOrderFAB(viewModel::saveOrderToFile) }) {
-        if (orderItems.size > 0) {
+    AppScaffold(navHostController, { if(orderItems.isNotEmpty()) OrderTopAppBar(orderCompleted, viewModel::readOrderFromFile) }, { if(orderCompleted) SaveOrderFAB(viewModel::saveOrderToFile) }) {
+        if (orderItems.isNotEmpty()) {
             LazyColumn(Modifier.weight(1f)) {
                 items(orderItems, key = { t -> t.id }) { item ->
-                    OrderListItem(item)
+                    OrderListItem(item){viewModel.selectItem(item)}
                 }
             }
         } else {
             EmptyOrderDialog(viewModel::readOrderFromFile)
         }
         if (scannedItem != null) {
-            NewOrderItemBottomSheet(scannedItem!!, onDismiss = viewModel::dismissNewItemDialog) {
+            UpdateOrderItemBottomSheet(scannedItem!!, onDismiss = viewModel::dismissNewItemDialog) {
                 viewModel.dismissNewItemDialog()
                 viewModel.updateOrderItem(it)
             }
@@ -110,20 +111,19 @@ private fun EmptyOrderDialog(
 private fun EmptyOrderDialogPreview() {
     ScannerAppTheme {
         Surface {
-            EmptyOrderDialog {
-
-            }
+            EmptyOrderDialog{}
         }
     }
 }
 
 @Composable
-private fun OrderListItem(item: OrderItem) {
+private fun OrderListItem(item: OrderItem, onSelectItem: ()->Unit) {
     val bestBeforeDateCompare =
         item.bestBeforeDate.toLocalDate() == item.requiredBestBeforeDate.toLocalDate()
     val quantityCompare = item.quantity == item.requiredQuantity
 
     ListItem(
+        modifier = Modifier.clickable(onClick = onSelectItem),
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceDim),
         headlineContent = {
             Text(item.title)
@@ -213,38 +213,34 @@ private fun OrderListItem(item: OrderItem) {
 @AtolPreview
 @Composable
 private fun OrderListItemPreview() {
+    val orders = listOf(OrderItem(
+        "2352332424",
+        "Cappucino",
+        0,
+        10,
+        0,
+        LocalDate.now().toEpochMilli()
+    ),OrderItem(
+        "2352332424",
+        "Cappucino",
+        5,
+        10,
+        LocalDate.now().plusDays(-20).toEpochMilli(),
+        LocalDate.now().toEpochMilli()
+    ),OrderItem(
+        "2352332424",
+        "Cappucino",
+        10,
+        10,
+        LocalDate.now().toEpochMilli(),
+        LocalDate.now().toEpochMilli()
+    ))
+
     ScannerAppTheme {
         Column {
-            OrderListItem(
-                OrderItem(
-                    "2352332424",
-                    "Cappucino",
-                    0,
-                    10,
-                    0,
-                    LocalDate.now().toEpochMilli()
-                )
-            )
-            OrderListItem(
-                OrderItem(
-                    "2352332424",
-                    "Cappucino",
-                    5,
-                    10,
-                    LocalDate.now().plusDays(-20).toEpochMilli(),
-                    LocalDate.now().toEpochMilli()
-                )
-            )
-            OrderListItem(
-                OrderItem(
-                    "2352332424",
-                    "Cappucino",
-                    10,
-                    10,
-                    LocalDate.now().toEpochMilli(),
-                    LocalDate.now().toEpochMilli()
-                )
-            )
+            orders.forEach {
+                OrderListItem(item = it) {}
+            }
         }
     }
 }

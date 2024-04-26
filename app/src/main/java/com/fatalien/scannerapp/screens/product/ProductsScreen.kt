@@ -51,12 +51,17 @@ fun ProductsScreen(viewModel: ProductsScreenVM, navHostController: NavHostContro
                 productInitData = scannedProduct!!, onDismiss = viewModel::dismissNewProduct
             ) {
                 viewModel.dismissNewProduct()
-                viewModel.insertProduct(it)
+                if(it.id>0){
+                    viewModel.updateProduct(it)
+                }
+                else {
+                    viewModel.insertProduct(it)
+                }
             }
         }
         if (products.isNotEmpty()) {
             //TestFunctions(viewModel::emulateQrScan)
-            ProductList(products, viewModel::deleteProductById)
+            ProductList(products, viewModel::selectProduct, viewModel::deleteProductById)
         } else {
             //TestFunctions(viewModel::emulateQrScan, Modifier.weight(1f))
             EmptyProductsTooltip()
