@@ -18,6 +18,6 @@ interface ProductDao {
     fun clear() : Int
     @Query("DELETE FROM products WHERE products.id = :id")
     fun delete(id: Int)
-    @Query("UPDATE products SET quantity = products.quantity+1 WHERE products.qr_code = :qr")
-    fun increment(qr: String)
+    @Query("UPDATE products SET quantity = products.quantity+:count WHERE products.id = :id")
+    fun increment(id: Int, count: Int)
 }

@@ -36,9 +36,9 @@ class ProductRepository @Inject constructor(private val productDao: ProductDao) 
         }
     }
 
-    suspend fun increment(qr: String){
+    suspend fun increment(id: Int, count: Int){
         withContext(Dispatchers.IO){
-            productDao.increment(qr)
+            productDao.increment(id, count)
         }
     }
 }

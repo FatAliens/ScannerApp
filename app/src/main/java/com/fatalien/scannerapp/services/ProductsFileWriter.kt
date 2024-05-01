@@ -6,9 +6,9 @@ import javax.inject.Inject
 
 class ProductsFileWriter @Inject constructor(private val _csv: CsvService) {
     fun write(path: String, products: List<Product>){
-        val header = listOf("TITLE", "QR", "COUNT","BEST BEFORE DATE")
+        val header = listOf("Наименование", "Штрих-код", "Количество","Срок годности д")
 
-        val data = products.map{ product -> listOf(product.title, product.qrCode, product.quantity.toString(), product.bestBeforeDate.toDateString()) }
+        val data = products.map{ product -> listOf<String>(product.title, product.qrCode, product.quantity.toString(), product.bestBeforeDate.toDateString()) }
 
         val result = mutableListOf<List<String>>(emptyList())
         result.add(header)

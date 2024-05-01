@@ -141,7 +141,7 @@ private fun OrderListItem(item: OrderItem, onSelectItem: ()->Unit) {
                 Text("до " + item.requiredBestBeforeDate.toDateString())
             } else {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("до " + item.requiredBestBeforeDate.toDateString())
+                    Text("до " + item.bestBeforeDate.toDateString())
                     Text(
                         item.requiredBestBeforeDate.toDateString(),
                         color = MaterialTheme.colorScheme.error,

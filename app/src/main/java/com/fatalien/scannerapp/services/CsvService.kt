@@ -12,7 +12,7 @@ class CsvService @Inject constructor(@ApplicationContext private val _context: C
     fun readCsvFromFile(path: String): List<Map<String, String>> {
         val uri = Uri.parse(path)
         _context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            val csvReader = csvReader { delimiter = ',' }
+            val csvReader = csvReader { delimiter = ';' }
             return csvReader.readAllWithHeader(inputStream)
         }
         throw IOException("Error on read file $path")
@@ -22,7 +22,7 @@ class CsvService @Inject constructor(@ApplicationContext private val _context: C
         val uri = Uri.parse(path)
         _context.contentResolver.openOutputStream(uri)?.use { outputStream ->
             val csvWriter = csvWriter {
-                delimiter = ','
+                delimiter = ';'
             }
             csvWriter.writeAll(data, outputStream)
         }

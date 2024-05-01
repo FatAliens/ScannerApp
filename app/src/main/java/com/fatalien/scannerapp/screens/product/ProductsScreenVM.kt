@@ -33,29 +33,7 @@ class ProductsScreenVM @Inject constructor(
     val scannedProduct = _scannedProduct.asStateFlow()
 
     init {
-        _clipboard.setOnCopy { qr ->
-            val sameQrProduct = products.value.firstOrNull { item -> item.qrCode == qr }
-            if (sameQrProduct != null) {
-                viewModelScope.launch {
-                    _productRepository.increment(sameQrProduct.qrCode)
-                    _products.emit(_productRepository.getAll())
-                }
-                return@setOnCopy
-            }
-
-            val sameQrCatalogItem = catalog.value.firstOrNull { it.qrCode == qr }
-            sameQrCatalogItem?.let { catalogItem ->
-                selectProduct(
-                    Product(
-                        catalogItem.qrCode,
-                        catalogItem.title,
-                        1,
-                        LocalDate.now().toEpochMilli(),
-                        0
-                    )
-                )
-            }
-        }
+        _clipboard.setOnCopy(this::onScanQr)
         loadDataFromDb()
     }
 
@@ -66,7 +44,23 @@ class ProductsScreenVM @Inject constructor(
         }
     }
 
-    private fun updateCatalogDb(newCatalog: List<CatalogItem>) {
+    private fun onScanQr(qr: String) {
+        val sameQrCatalogItem = catalog.value.firstOrNull { it.qrCode == qr }
+        sameQrCatalogItem?.let { catalogItem ->
+            selectProduct(
+                Product(
+                    catalogItem.qrCode,
+                    catalogItem.title,
+                    1,
+                    LocalDate.now().toEpochMilli(),
+                    0
+                )
+            )
+        }
+    }
+
+
+    private fun loadNewCatalogDb(newCatalog: List<CatalogItem>) {
         viewModelScope.launch {
             _catalogRepository.clear()
             _catalogRepository.insert(newCatalog)
@@ -76,28 +70,15 @@ class ProductsScreenVM @Inject constructor(
 
     fun loadCatalogFromFile(path: String) {
         val newCatalog = _catalogFileReader.read(path)
-        newCatalog?.let { updateCatalogDb(it) }
+        newCatalog?.let { loadNewCatalogDb(it) }
     }
 
     fun emulateQrScan(qr: String) {
-        _clipboard.setClipboard(qr)
+        onScanQr(qr)
     }
 
     fun saveProductsToFile(path: String) {
         _productsFileWriter.write(path, products.value)
-    }
-
-    fun dismissNewProduct() {
-        viewModelScope.launch {
-            _scannedProduct.emit(null)
-        }
-    }
-
-    fun insertProduct(newProduct: Product) {
-        viewModelScope.launch {
-            _productRepository.insert(newProduct)
-            _products.emit(_productRepository.getAll())
-        }
     }
 
     fun deleteProductById(id: Int) {
@@ -113,10 +94,33 @@ class ProductsScreenVM @Inject constructor(
         }
     }
 
-    fun updateProduct(product: Product) {
+    fun dismissNewProduct() {
         viewModelScope.launch {
-            _productRepository.update(product)
-            _products.emit(_productRepository.getAll())
+            _scannedProduct.emit(null)
+        }
+    }
+
+    fun onProductAdd(newProduct: Product) {
+        if (newProduct.id != 0) {
+            viewModelScope.launch {
+                _productRepository.update(newProduct)
+                _products.emit(_productRepository.getAll())
+            }
+        } else {
+            val sameProduct = products.value.firstOrNull { item ->
+                item.qrCode == newProduct.qrCode && item.bestBeforeDate == newProduct.bestBeforeDate
+            }
+            if(sameProduct != null){
+                viewModelScope.launch {
+                    _productRepository.increment(sameProduct.id, newProduct.quantity)
+                    _products.emit(_productRepository.getAll())
+                }
+            } else {
+                viewModelScope.launch {
+                    _productRepository.insert(newProduct)
+                    _products.emit(_productRepository.getAll())
+                }
+            }
         }
     }
 }

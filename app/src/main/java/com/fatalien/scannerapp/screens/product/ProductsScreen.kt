@@ -42,21 +42,18 @@ fun ProductsScreen(viewModel: ProductsScreenVM, navHostController: NavHostContro
     AppScaffold(
         navHostController,
         { CatalogInfoTopAppBar(catalog.size) { showCatalogDialog = true } },
-        { if(products.isNotEmpty()) SaveProductsFAB(viewModel::saveProductsToFile) }
+        { if (products.isNotEmpty()) SaveProductsFAB(viewModel::saveProductsToFile) }
     ) {
-        if (showCatalogDialog) CatalogDialog(catalog,
-            { viewModel.loadCatalogFromFile(it) }) { showCatalogDialog = false }
+        if (showCatalogDialog) {
+            CatalogDialog(catalog,
+                { viewModel.loadCatalogFromFile(it) }) { showCatalogDialog = false }
+        }
         if (scannedProduct != null) {
             NewProductBottomSheet(
                 productInitData = scannedProduct!!, onDismiss = viewModel::dismissNewProduct
             ) {
                 viewModel.dismissNewProduct()
-                if(it.id>0){
-                    viewModel.updateProduct(it)
-                }
-                else {
-                    viewModel.insertProduct(it)
-                }
+                viewModel.onProductAdd(it)
             }
         }
         if (products.isNotEmpty()) {
@@ -66,14 +63,17 @@ fun ProductsScreen(viewModel: ProductsScreenVM, navHostController: NavHostContro
             //TestFunctions(viewModel::emulateQrScan, Modifier.weight(1f))
             EmptyProductsTooltip()
         }
-
     }
 }
 
 @Composable
-fun EmptyProductsTooltip(){
-    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Icon(ImageVector.vectorResource(R.drawable.barcode_scanner),"", Modifier.size(100.dp))
+fun EmptyProductsTooltip() {
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(ImageVector.vectorResource(R.drawable.barcode_scanner), "", Modifier.size(100.dp))
         Spacer(Modifier.height(10.dp))
         Text("Осканируйте товар,\nчтобы увидеть его здесь.", textAlign = TextAlign.Center)
     }
@@ -81,10 +81,10 @@ fun EmptyProductsTooltip(){
 
 @AtolPreview
 @Composable
-fun EmptyProductsTooltipPreview(){
+fun EmptyProductsTooltipPreview() {
     ScannerAppTheme {
         Surface {
-            EmptyProductsTooltip();
+            EmptyProductsTooltip()
         }
     }
 }

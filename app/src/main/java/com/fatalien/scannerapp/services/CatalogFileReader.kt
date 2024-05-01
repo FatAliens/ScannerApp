@@ -8,8 +8,8 @@ class CatalogFileReader @Inject constructor(private val _csv: CsvService) {
         val fileData = _csv.readCsvFromFile(path)
         val catalogItems = fileData.map {
             CatalogItem(
-                qrCode = it["QR"] ?: return null,
-                title = it["TITLE"] ?: return null
+                qrCode = it["Штрих-код"] ?: return null,
+                title = it["Наименование"] ?: return null
             )
         }
         return catalogItems
