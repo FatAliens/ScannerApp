@@ -13,11 +13,11 @@ class OrderFileReader @Inject constructor(private val _csv: CsvService) {
                 qrCode = it["Штрих-код"] ?: return null,
                 title = it["Наименование"] ?: return null,
                 quantity = 0,
-                requiredQuantity = if(it["Кол-во коробок"].isNullOrEmpty()) 1 else it["Кол-во коробок"]!!.toInt(),
+                requiredQuantity = if(it["Кол-во коробок"].isNullOrEmpty()) 0 else it["Кол-во коробок"]!!.toInt(),
                 bestBeforeDate = 0,
                 requiredBestBeforeDate = if(it["Срок годности"].isNullOrEmpty()) LocalDate.now().toEpochMilli() else it["Срок годности"]!!.toEpochMilli(),
             )
-        }
+        }.filter { it.requiredQuantity != 0 }
         return catalogItems
     }
 }

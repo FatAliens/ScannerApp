@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fatalien.scannerapp.data.entity.OrderItem
 import com.fatalien.scannerapp.data.repository.OrderRepository
+import com.fatalien.scannerapp.helpers.toEpochMilli
 import com.fatalien.scannerapp.services.ClipboardService
 import com.fatalien.scannerapp.services.OrderFileReader
 import com.fatalien.scannerapp.services.OrderFileWriter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,17 +31,8 @@ class OrderScreenVM @Inject constructor(
     init {
         _clipboard.setOnCopy { qr ->
             val sameQrProduct = _orderItems.value.firstOrNull { item -> item.qrCode == qr }
-            if (sameQrProduct != null) {
-                if(sameQrProduct.quantity==0){
-                    selectItem(sameQrProduct)
-                }
-                else if(sameQrProduct.quantity < sameQrProduct.requiredQuantity){
-                    viewModelScope.launch {
-                        _orderRepo.increment(sameQrProduct.qrCode)
-                        loadOrderFromDb()
-                    }
-                }
-            }
+
+            sameQrProduct?.let { selectItem(OrderItem(sameQrProduct.qrCode, sameQrProduct.title, 0, 100, LocalDate.now().toEpochMilli(), LocalDate.now().toEpochMilli(), 0)) };
         }
         viewModelScope.launch {
             loadOrderFromDb();
@@ -81,8 +75,17 @@ class OrderScreenVM @Inject constructor(
 
     fun updateOrderItem(item: OrderItem) {
         viewModelScope.launch {
-            _orderRepo.update(item)
-            loadOrderFromDb()
+            val oldItem = orderItems.value.firstOrNull { it.requiredBestBeforeDate == item.requiredBestBeforeDate && it.qrCode == item.qrCode }
+
+            if(oldItem != null){
+                if(oldItem.quantity < oldItem.requiredQuantity){
+                    var newItem = oldItem.copy(quantity = oldItem.quantity+item.quantity)
+                    if(newItem.quantity>newItem.requiredQuantity) newItem = newItem.copy(quantity = newItem.requiredQuantity)
+
+                    _orderRepo.update(item)
+                    loadOrderFromDb()
+                }
+            }
         }
     }
 

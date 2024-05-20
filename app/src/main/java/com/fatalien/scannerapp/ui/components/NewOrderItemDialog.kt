@@ -149,12 +149,6 @@ private fun DatePickerButton(
             shape = MaterialTheme.shapes.small
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                if (!dateCompare)
-                    Text(
-                        requiredDate.toDateString(),
-                        color = MaterialTheme.colorScheme.error,
-                        style = TextStyle(textDecoration = TextDecoration.LineThrough)
-                    )
                 Text(currentDate.toDateString(), style = MaterialTheme.typography.titleMedium)
             }
         }
