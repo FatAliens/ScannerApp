@@ -11,7 +11,6 @@ import com.fatalien.scannerapp.services.OrderFileWriter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -75,14 +74,14 @@ class OrderScreenVM @Inject constructor(
 
     fun updateOrderItem(item: OrderItem) {
         viewModelScope.launch {
-            val oldItem = orderItems.value.firstOrNull { it.requiredBestBeforeDate == item.requiredBestBeforeDate && it.qrCode == item.qrCode }
+            val oldItem = orderItems.value.firstOrNull { it.requiredBestBeforeDate == item.bestBeforeDate && it.qrCode == item.qrCode }
 
             if(oldItem != null){
                 if(oldItem.quantity < oldItem.requiredQuantity){
                     var newItem = oldItem.copy(quantity = oldItem.quantity+item.quantity)
                     if(newItem.quantity>newItem.requiredQuantity) newItem = newItem.copy(quantity = newItem.requiredQuantity)
 
-                    _orderRepo.update(item)
+                    _orderRepo.update(newItem)
                     loadOrderFromDb()
                 }
             }
